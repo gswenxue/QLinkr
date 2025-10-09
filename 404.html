@@ -1,0 +1,171 @@
+<?php
+require 'config.php';
+
+// 获取网站设置
+$settings = get_settings($pdo);
+$site_title = $settings['site_title'] ?? '我的友链';
+$theme_color = $settings['theme_color'] ?? '#3B82F6';
+$glass_effect = isset($settings['glass_effect']) ? $settings['glass_effect'] : 1;
+$background = $settings['background'] ?? '';
+?>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面未找到 - <?php echo htmlspecialchars($site_title); ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '<?php echo $theme_color; ?>',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* 页面布局基础样式 */
+        html, body {
+            height: 100%;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        <?php if (!empty($background)): ?>
+        body {
+            background-image: url('<?php echo htmlspecialchars($background); ?>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        /* 夜间模式背景调整 */
+        body.dark-mode {
+            background-blend-mode: overlay;
+            background-color: rgba(30, 30, 30, 0.85);
+        }
+        <?php endif; ?>
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        
+        /* 夜间模式样式 */
+        body.dark-mode {
+            color: #e5e7eb;
+            background-color: #1f2937;
+        }
+        
+        body.dark-mode .glass-effect {
+            background-color: rgba(30, 30, 40, 0.7);
+        }
+        
+        body.dark-mode .glass-card {
+            background-color: rgba(30, 30, 40, 0.85);
+        }
+        
+        body.dark-mode .text-gray-900 {
+            color: #f3f4f6;
+        }
+        
+        body.dark-mode .text-gray-700 {
+            color: #e5e7eb;
+        }
+        
+        body.dark-mode .text-gray-600 {
+            color: #d1d5db;
+        }
+        
+        body.dark-mode .border-gray-300 {
+            border-color: #4b5563;
+        }
+        
+        body.dark-mode .bg-white {
+            background-color: #374151;
+        }
+        
+        body.dark-mode .bg-gray-50 {
+            background-color: #1f2937;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="py-4 px-6 <?php echo $glass_effect ? 'glass-effect' : 'bg-white'; ?> shadow-sm sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto flex justify-end items-center">
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.php" class="text-primary font-medium">首页</a></li>
+                    <li><a href="apply.php" class="text-gray-600 hover:text-primary transition-colors">申请友链</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <main class="py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div class="max-w-2xl w-full text-center">
+            <div class="rounded-xl shadow-lg overflow-hidden <?php echo $glass_effect ? 'glass-card' : 'bg-white'; ?> p-8 md:p-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary mb-6">
+                    <i class="fa fa-exclamation-triangle text-4xl"></i>
+                </div>
+                
+                <h1 class="text-5xl font-bold text-gray-900 mb-4">404</h1>
+                <p class="text-xl text-gray-600 mb-8">抱歉，您访问的页面不存在</p>
+                
+                <p class="text-gray-600 mb-8">
+                    您可能输入了错误的网址，或者该页面已被移除。
+                    请检查网址是否正确，或返回首页继续浏览。
+                </p>
+                
+                <a href="index.php" class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium">
+                    <i class="fa fa-home mr-2"></i>返回首页
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="py-8 px-6 <?php echo $glass_effect ? 'glass-effect' : 'bg-gray-50'; ?> border-t mt-auto">
+        <div class="max-w-7xl mx-auto text-center text-gray-600 text-sm">
+            <?php if (!empty($settings['footer_text'])): ?>
+                <p><?php echo nl2br(htmlspecialchars($settings['footer_text'])); ?></p>
+            <?php else: ?>
+                <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($site_title); ?> - QLinkr友链系统</p>
+            <?php endif; ?>
+        </div>
+    </footer>
+
+    <script>
+        // 同步夜间模式设置
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查本地存储中的主题设置
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        });
+    </script>
+</body>
+</html>
