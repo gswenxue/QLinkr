@@ -132,6 +132,7 @@ fileinfo扩展是系统核心依赖（用于处理图片上传），必须先安
 - 系统开发：iuarn
 - 联系邮箱：co-x@163.com
 - iUARN的友链站：https://ylz.cpdd.cyou
+- GitHub地址：https://github.com/gswenxue/QLinkr
 
 ## 说明
 - 本项目源码开源，允许修改使用，但需要标注来源，制作不易，谢谢合作
