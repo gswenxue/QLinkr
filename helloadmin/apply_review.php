@@ -32,7 +32,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     }
 }
 
-// 获取筛选状态
+// 获取筛选状态，默认显示待审核
 $status_filter = isset($_GET['status']) ? intval($_GET['status']) : 0;
 
 // 获取所有申请
@@ -62,6 +62,24 @@ $theme_color = $settings['theme_color'] ?? '#3B82F6';
             }
         }
     </script>
+    <style>
+        /* 添加响应式表格样式 */
+        @media (max-width: 768px) {
+            .responsive-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+        
+        /* 描述文本截断样式 */
+        .desc-truncate {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="flex h-screen overflow-hidden">
@@ -185,9 +203,9 @@ $theme_color = $settings['theme_color'] ?? '#3B82F6';
                 </div>
                 <?php endif; ?>
                 
-                <!-- 筛选器 -->
-                <div class="bg-white rounded-lg shadow p-4 mb-6">
-                    <div class="flex flex-wrap gap-2">
+                <!-- 筛选器（已删除全部按钮） -->
+                <div class="bg-white rounded-lg shadow p-4 mb-6 overflow-x-auto">
+                    <div class="flex flex-wrap gap-2 min-w-max">
                         <a href="apply_review.php?status=0" class="px-4 py-2 rounded <?php echo $status_filter == 0 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'; ?> transition-colors">
                             待审核 <span class="ml-1 bg-white text-primary px-2 py-0.5 rounded-full text-xs"><?php echo count(get_friend_applications($pdo, 0)); ?></span>
                         </a>
@@ -196,9 +214,6 @@ $theme_color = $settings['theme_color'] ?? '#3B82F6';
                         </a>
                         <a href="apply_review.php?status=2" class="px-4 py-2 rounded <?php echo $status_filter == 2 ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'; ?> transition-colors">
                             已拒绝 <span class="ml-1 bg-white text-red-500 px-2 py-0.5 rounded-full text-xs"><?php echo count(get_friend_applications($pdo, 2)); ?></span>
-                        </a>
-                        <a href="apply_review.php?status=-1" class="px-4 py-2 rounded <?php echo $status_filter == -1 ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'; ?> transition-colors">
-                            全部 <span class="ml-1 bg-white text-gray-500 px-2 py-0.5 rounded-full text-xs"><?php echo count(get_friend_applications($pdo, null)); ?></span>
                         </a>
                     </div>
                 </div>
@@ -211,86 +226,110 @@ $theme_color = $settings['theme_color'] ?? '#3B82F6';
                             <p class="text-gray-500">没有找到相关的友链申请</p>
                         </div>
                     <?php else: ?>
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">网站名称</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">网址</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($applications as $app): ?>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <?php if (!empty($app['logo'])): ?>
-                                            <img src="<?php echo htmlspecialchars($app['logo']); ?>" alt="<?php echo htmlspecialchars($app['name']); ?>" class="h-10 w-10 rounded object-cover">
-                                        <?php else: ?>
-                                            <div class="h-10 w-10 bg-gray-200 rounded flex items-center justify-center">
-                                                <i class="fa fa-globe text-gray-400"></i>
+                        <!-- 添加响应式表格容器 -->
+                        <div class="responsive-table">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">网站名称</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">网址</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">分类</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">提交时间</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php foreach ($applications as $app): ?>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php if (!empty($app['logo'])): ?>
+                                                <img src="<?php echo htmlspecialchars($app['logo']); ?>" alt="<?php echo htmlspecialchars($app['name']); ?>" class="h-10 w-10 rounded object-cover">
+                                            <?php else: ?>
+                                                <div class="h-10 w-10 bg-gray-200 rounded flex items-center justify-center">
+                                                    <i class="fa fa-globe text-gray-400"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($app['name']); ?></div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <?php echo htmlspecialchars($app['contact'] ?? '无联系方式'); ?>
                                             </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($app['name']); ?></div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            <?php echo htmlspecialchars($app['contact'] ?? '无联系方式'); ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-900 break-all max-w-xs">
-                                            <a href="<?php echo htmlspecialchars($app['url']); ?>" target="_blank" class="hover:text-primary">
-                                                <?php echo htmlspecialchars($app['url']); ?>
-                                            </a>
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1 line-clamp-2">
-                                            <?php echo htmlspecialchars($app['description'] ?? '无描述'); ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            <?php echo htmlspecialchars($app['category'] ?? '未分类'); ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?php echo date('Y-m-d H:i', strtotime($app['created_at'])); ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <?php if ($app['status'] == 0): ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                待审核
+                                            <!-- 在小屏幕上显示网址 -->
+                                            <div class="text-xs text-gray-600 mt-1 sm:hidden break-all">
+                                                <a href="<?php echo htmlspecialchars($app['url']); ?>" target="_blank" class="hover:text-primary">
+                                                    <?php echo htmlspecialchars($app['url']); ?>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 hidden sm:table-cell">
+                                            <div class="text-sm text-gray-900 break-all max-w-xs">
+                                                <a href="<?php echo htmlspecialchars($app['url']); ?>" target="_blank" class="hover:text-primary">
+                                                    <?php echo htmlspecialchars($app['url']); ?>
+                                                </a>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1 desc-truncate">
+                                                <?php 
+                                                $description = $app['description'] ?? '无描述';
+                                                // 大屏幕显示前20字加省略号，小屏幕不受此限制但受line-clamp控制
+                                                if (mb_strlen($description) > 20) {
+                                                    echo '<span class="hidden md:inline">'.htmlspecialchars(mb_substr($description, 0, 20)).'...</span>';
+                                                    echo '<span class="md:hidden">'.htmlspecialchars($description).'</span>';
+                                                } else {
+                                                    echo htmlspecialchars($description);
+                                                }
+                                                ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                <?php echo htmlspecialchars($app['category'] ?? '未分类'); ?>
                                             </span>
-                                        <?php elseif ($app['status'] == 1): ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                已通过
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                已拒绝
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <?php if ($app['status'] == 0): ?>
-                                            <a href="apply_review.php?action=approve&id=<?php echo $app['id']; ?>" class="text-green-600 hover:text-green-900 mr-3" onclick="return confirm('确定要批准这个友链申请吗？')">
-                                                批准
-                                            </a>
-                                            <a href="apply_review.php?action=reject&id=<?php echo $app['id']; ?>" class="text-red-600 hover:text-red-900 mr-3" onclick="return confirm('确定要拒绝这个友链申请吗？')">
-                                                拒绝
-                                            </a>
-                                        <?php endif; ?>
-                                        <a href="apply_review.php?action=delete&id=<?php echo $app['id']; ?>" class="text-gray-600 hover:text-gray-900" onclick="return confirm('确定要删除这个申请记录吗？')">
-                                            删除
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                                            <?php echo date('Y-m-d H:i', strtotime($app['created_at'])); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php if ($app['status'] == 0): ?>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    待审核
+                                                </span>
+                                            <?php elseif ($app['status'] == 1): ?>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    已通过
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    已拒绝
+                                                </span>
+                                            <?php endif; ?>
+                                            <!-- 在小屏幕上显示提交时间 -->
+                                            <div class="text-xs text-gray-500 mt-1 sm:hidden">
+                                                <?php echo date('Y-m-d H:i', strtotime($app['created_at'])); ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex flex-col sm:flex-row sm:justify-end gap-2">
+                                                <?php if ($app['status'] == 0): ?>
+                                                    <a href="apply_review.php?action=approve&id=<?php echo $app['id']; ?>" class="text-green-600 hover:text-green-900" onclick="return confirm('确定要批准这个友链申请吗？')">
+                                                        批准
+                                                    </a>
+                                                    <a href="apply_review.php?action=reject&id=<?php echo $app['id']; ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('确定要拒绝这个友链申请吗？')">
+                                                        拒绝
+                                                    </a>
+                                                <?php endif; ?>
+                                                <a href="apply_review.php?action=delete&id=<?php echo $app['id']; ?>" class="text-gray-600 hover:text-gray-900" onclick="return confirm('确定要删除这个申请记录吗？')">
+                                                    删除
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php endif; ?>
                 </div>
             </main>

@@ -100,8 +100,8 @@ fileinfo扩展是系统核心依赖（用于处理图片上传），必须先安
 
 1. 安装成功后，系统会自动跳转到登录页面
 2. 默认账号admin，密码admin888
-3. 使用默认的管理员账号登录后台（默认后台路径：`http://你的域名/helloadmin`）
-4. 建议删除安装引导文件（`install.php`）以提高安全性
+3. 使用默认的管理员账号登录后台（默认后台路径：`http://你的域名/helloadmin/login.php`）
+4. （可选）删除安装引导文件（`install.php`）以提高安全性
 
 
 ## 使用说明
@@ -126,7 +126,10 @@ fileinfo扩展是系统核心依赖（用于处理图片上传），必须先安
 4. **页面显示错乱**  
    解决：清除浏览器缓存，或检查服务器是否正确加载静态资源（CSS/JS）。
 
- 5. **需要重装**  
+5. **直接访问域名的后台helloadmin目录显示404**  
+   解决：该问题需要在后面加上/login.php访问。
+
+6. **如何重装**  
    解决：删除database_config.php文件，清除数据库，然后访问域名重新进行安装引导（需未删除install.php文件）。
 
 
@@ -134,7 +137,7 @@ fileinfo扩展是系统核心依赖（用于处理图片上传），必须先安
 
 - 系统开发：iuarn
 - 联系邮箱：co-x@163.com
-- 我的友链站：https://ylz.cpdd.cyou
+- QLinkr友链导航（欢迎进行互链）：https://ylz.cpdd.cyou
 - GitHub地址：https://github.com/gswenxue/QLinkr
 
 ## 说明
