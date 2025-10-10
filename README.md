@@ -126,12 +126,15 @@ fileinfo扩展是系统核心依赖（用于处理图片上传），必须先安
 4. **页面显示错乱**  
    解决：清除浏览器缓存，或检查服务器是否正确加载静态资源（CSS/JS）。
 
+ 5. **需要重装**  
+   解决：删除database_config.php文件，清除数据库，然后访问域名重新进行安装引导（需未删除install.php文件）。
+
 
 ## 联系方式
 
 - 系统开发：iuarn
 - 联系邮箱：co-x@163.com
-- iUARN的友链站：https://ylz.cpdd.cyou
+- 我的友链站：https://ylz.cpdd.cyou
 - GitHub地址：https://github.com/gswenxue/QLinkr
 
 ## 说明
